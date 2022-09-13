@@ -1,10 +1,11 @@
 import quandl
-from settings.default import ALL_QUANDL_CODES
+from settings.default import ALL_QUANDL_CODES, API_KEY
 import datetime as dt
 import argparse
 import os
 
 DEPTH = 1
+
 
 def main(api_key: str):
     quandl.ApiConfig.api_key = api_key
@@ -28,7 +29,6 @@ def main(api_key: str):
 
 
 if __name__ == "__main__":
-
     def get_args():
         """Download the Quandl data"""
 
@@ -46,5 +46,6 @@ if __name__ == "__main__":
         return (
             args.api_key,
         )
-    
+
+
     main(*get_args())

@@ -8,10 +8,20 @@ import numpy as np
 
 from settings.default import PINNACLE_DATA_CUT, PINNACLE_DATA_FOLDER
 
+
 def pull_quandl_sample_data(ticker: str) -> pd.DataFrame:
     return (
         pd.read_csv(os.path.join("data", "quandl", f"{ticker}.csv"), parse_dates=[0])
         .rename(columns={"Trade Date": "date", "Date": "date", "Settle": "close"})
+        .set_index("date")
+        .replace(0.0, np.nan)
+    )
+
+
+def pull_yfinance_sample_data(ticker: str) -> pd.DataFrame:
+    return (
+        pd.read_csv(os.path.join("data", "yfinance", f"{ticker}.csv"), parse_dates=[0])
+        .rename(columns={"Trade Date": "date", "Date": "date", "Settle": "close", "Close": "close", ticker: "close"})
         .set_index("date")
         .replace(0.0, np.nan)
     )
@@ -28,14 +38,14 @@ def pull_pinnacle_data(ticker: str) -> pd.DataFrame:
 
 def _fill_blanks(data: pd.DataFrame):
     return data[
-        data["close"].first_valid_index() : data["close"].last_valid_index()
-    ].fillna(
+           data["close"].first_valid_index(): data["close"].last_valid_index()
+           ].fillna(
         method="ffill"
     )  # .interpolate()
 
 
 def pull_pinnacle_data_multiple(
-    tickers: List[str], fill_missing_dates=False
+        tickers: List[str], fill_missing_dates=False
 ) -> pd.DataFrame:
     data = pd.concat(
         [pull_pinnacle_data(ticker).assign(ticker=ticker).copy() for ticker in tickers]
