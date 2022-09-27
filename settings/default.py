@@ -7,6 +7,9 @@ CPD_DEFAULT_LBW = 21
 BACKTEST_AVERAGE_BASIS_POINTS = [None, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0]
 USE_KM_HYP_TO_INITIALISE_KC = True
 
+WRDS_PRICE_PATH = "data/prices.p"
+WRDS_CONST_PATH = "data/constituents.p"
+
 CPD_QUANDL_OUTPUT_FOLDER = lambda lbw: os.path.join(
     "data", f"quandl_cpd_{(lbw if lbw else 'none')}lbw"
 )
@@ -15,8 +18,13 @@ CPD_YFINANCE_OUTPUT_FOLDER = lambda lbw: os.path.join(
     "data", f"yfinance_cpd_{(lbw if lbw else 'none')}lbw"
 )
 
+CPD_WRDS_OUTPUT_FOLDER = lambda lbw: os.path.join(
+    "data", f"wrds_cpd_{(lbw if lbw else 'none')}lbw"
+)
+
 CPD_QUANDL_OUTPUT_FOLDER_DEFAULT = CPD_QUANDL_OUTPUT_FOLDER(CPD_DEFAULT_LBW)
 CPD_YFINANCE_OUTPUT_FOLDER_DEFAULT = CPD_YFINANCE_OUTPUT_FOLDER(CPD_DEFAULT_LBW)
+CPD_WRDS_OUTPUT_FOLDER_DEFAULT = CPD_WRDS_OUTPUT_FOLDER(CPD_DEFAULT_LBW)
 
 FEATURES_QUANDL_FILE_PATH = lambda lbw: os.path.join(
     "data", f"quandl_cpd_{(lbw if lbw else 'none')}lbw.csv"
@@ -25,9 +33,13 @@ FEATURES_QUANDL_FILE_PATH = lambda lbw: os.path.join(
 FEATURES_YFINANCE_FILE_PATH = lambda lbw: os.path.join(
     "data", f"yfinance_cpd_{(lbw if lbw else 'none')}lbw.csv"
 )
+FEATURES_WRDS_FILE_PATH = lambda lbw: os.path.join(
+    "data", f"wrds_cpd_{(lbw if lbw else 'none')}lbw.csv"
+)
 
 FEATURES_QUANDL_FILE_PATH_DEFAULT = FEATURES_QUANDL_FILE_PATH(CPD_DEFAULT_LBW)
 FEATURES_YFINANCE_FILE_PATH_DEFAULT = FEATURES_YFINANCE_FILE_PATH(CPD_DEFAULT_LBW)
+FEATURES_WRDS_FILE_PATH_DEFAULT = FEATURES_WRDS_FILE_PATH(CPD_DEFAULT_LBW)
 
 QUANDL_TICKERS = [
     "ICE_SB",
