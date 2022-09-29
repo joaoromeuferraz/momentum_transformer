@@ -131,9 +131,11 @@ dmypy.json
 results/
 .vscode/
 nohup*
+.idea/
 
-.csv
-.p
-.pkl
+*.csv
+*.p
+*.pkl
+*.xml
 /data/constituents.p
 /data/prices.p
