@@ -30,6 +30,7 @@ physical_devices = tf.config.list_physical_devices("GPU")
 if physical_devices:
     tf.config.experimental.set_memory_growth(physical_devices[0], enable=True)
 
+
 def _get_directory_name(
     experiment_name: str, train_interval: Tuple[int, int, int] = None
 ) -> str:

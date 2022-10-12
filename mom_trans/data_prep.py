@@ -46,7 +46,7 @@ def prepare_cpd_features(folder_path: str, lookback_window_length: int) -> pd.Da
 
 
     Args:
-        file_path (str): the folder path containing csvs with the CPD the results
+        folder_path (str): the folder path containing csvs with the CPD the results
         lookback_window_length (int): lookback window length
 
     Returns:
@@ -160,5 +160,6 @@ def include_changepoint_features(
     )
 
     features.index = features["date"]
+    features.index.name = "Date"
 
     return features

@@ -7,6 +7,7 @@ import pandas as pd
 from settings.default import (
     CPD_WRDS_OUTPUT_FOLDER,
     CPD_DEFAULT_LBW,
+    WRDS_PRICE_PATH,
     WRDS_CONST_PATH,
     ONEDRIVE_CPD_WRDS_OUTPUT_FOLDER
 )
@@ -38,6 +39,7 @@ def main(lookback_window_length: int, n_workers=None, latest_tickers=False, oned
         os.mkdir(save_dir)
 
     constituents = pickle.load(open(WRDS_CONST_PATH, "rb"))
+    prices = pickle.load(open(WRDS_PRICE_PATH, "rb"))
     constituents.index = pd.to_datetime(constituents.index)
 
     if latest_tickers:
@@ -52,6 +54,14 @@ def main(lookback_window_length: int, n_workers=None, latest_tickers=False, oned
         valid_dates = constituents[ticker].dropna()
         valid_dates = valid_dates[valid_dates].index
         start, end = valid_dates[0].strftime("%Y-%m-%d"), valid_dates[-1].strftime("%Y-%m-%d")
+
+        price_dates = prices.loc[prices[id_type] == ticker, ["datadate", "adjclose"]].dropna()["datadate"]
+        first_price_dt = price_dates.min().strftime("%Y-%m-%d")
+        last_price_dt = price_dates.max().strftime("%Y-%m-%d")
+
+        start = max(first_price_dt, start)
+        end = min(end, last_price_dt)
+
         all_processes[ticker] = f'python -m examples.cpd_wrds "{ticker}" ' \
                                 f'"{os.path.join(save_dir, ticker + ".csv")}" ' \
                                 f'"{start}" "{end}" "{lookback_window_length}" ' \

@@ -23,27 +23,18 @@ CPD_WRDS_OUTPUT_FOLDER = lambda lbw: os.path.join(
 )
 
 ONEDRIVE_CPD_WRDS_OUTPUT_FOLDER = lambda lbw: os.path.join(
-    "../../..", "OneDrive", "cool stuff", "data", f"wrds_cpd_{(lbw if lbw else 'none')}lbw"
+    "../../../Desktop", "OneDrive", "cool stuff", "data", f"wrds_cpd_{(lbw if lbw else 'none')}lbw"
 )
 
 CPD_QUANDL_OUTPUT_FOLDER_DEFAULT = CPD_QUANDL_OUTPUT_FOLDER(CPD_DEFAULT_LBW)
 CPD_YFINANCE_OUTPUT_FOLDER_DEFAULT = CPD_YFINANCE_OUTPUT_FOLDER(CPD_DEFAULT_LBW)
 CPD_WRDS_OUTPUT_FOLDER_DEFAULT = CPD_WRDS_OUTPUT_FOLDER(CPD_DEFAULT_LBW)
 
-FEATURES_QUANDL_FILE_PATH = lambda lbw: os.path.join(
-    "data", f"quandl_cpd_{(lbw if lbw else 'none')}lbw.csv"
-)
+FEATURES_QUANDL_FILE_PATH = os.path.join("data", "features_quandl")
 
-FEATURES_YFINANCE_FILE_PATH = lambda lbw: os.path.join(
-    "data", f"yfinance_cpd_{(lbw if lbw else 'none')}lbw.csv"
-)
-FEATURES_WRDS_FILE_PATH = lambda lbw: os.path.join(
-    "data", f"wrds_cpd_{(lbw if lbw else 'none')}lbw.csv"
-)
+FEATURES_YFINANCE_FILE_PATH = os.path.join("data", "features_yfinance")
 
-FEATURES_QUANDL_FILE_PATH_DEFAULT = FEATURES_QUANDL_FILE_PATH(CPD_DEFAULT_LBW)
-FEATURES_YFINANCE_FILE_PATH_DEFAULT = FEATURES_YFINANCE_FILE_PATH(CPD_DEFAULT_LBW)
-FEATURES_WRDS_FILE_PATH_DEFAULT = FEATURES_WRDS_FILE_PATH(CPD_DEFAULT_LBW)
+FEATURES_WRDS_FILE_PATH = os.path.join("data", "features_wrds")
 
 QUANDL_TICKERS = [
     "ICE_SB",

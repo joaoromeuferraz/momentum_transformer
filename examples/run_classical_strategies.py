@@ -10,4 +10,6 @@ features_file_path = os.path.join(
     "quandl_cpd_nonelbw.csv",
 )
 
-run_classical_methods(features_file_path, INTERVALS, REFERENCE_EXPERIMENT)
+
+if __name__ == "__main__":
+    run_classical_methods(features_file_path, INTERVALS, REFERENCE_EXPERIMENT)

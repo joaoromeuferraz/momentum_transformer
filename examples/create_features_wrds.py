@@ -1,14 +1,15 @@
 import argparse
-import datetime as dt
 from typing import List
 import pickle
 import pandas as pd
+import os
 
 from data.pull_data import pull_wrds_sample_data
 
 from settings.default import (
     CPD_WRDS_OUTPUT_FOLDER,
     FEATURES_WRDS_FILE_PATH,
+    ONEDRIVE_CPD_WRDS_OUTPUT_FOLDER,
     WRDS_PRICE_PATH
 )
 from mom_trans.data_prep import (
@@ -19,12 +20,14 @@ from mom_trans.data_prep import (
 
 def main(
         tickers: List[str],
-        cpd_module_folder: str,
-        lookback_window_length: int,
-        output_file_path: str,
-        extra_lbw: List[int],
-        id_type="gvkey"
+        lookback_window_length: int or List[int],
+        output_name: str,
+        id_type="gvkey",
+        onedrive=False
 ):
+    if isinstance(lookback_window_length, int):
+        lookback_window_length = [lookback_window_length]
+
     prices = pickle.load(open(WRDS_PRICE_PATH, "rb"))
     prices["datadate"] = pd.to_datetime(prices["datadate"])
 
@@ -41,44 +44,21 @@ def main(
     features.index.name = "Date"
 
     if lookback_window_length:
-        features_w_cpd = include_changepoint_features(
-            features, cpd_module_folder, lookback_window_length
-        )
+        cpd_dir = ONEDRIVE_CPD_WRDS_OUTPUT_FOLDER if onedrive else CPD_WRDS_OUTPUT_FOLDER
+        for lbw in lookback_window_length:
+            features = include_changepoint_features(
+                features, cpd_dir(lbw), lbw
+            )
 
-        if extra_lbw:
-            for extra in extra_lbw:
-                extra_data = pd.read_csv(
-                    output_file_path.replace(
-                        f"quandl_cpd_{lookback_window_length}lbw.csv",
-                        f"quandl_cpd_{extra}lbw.csv",
-                    ),
-                    index_col=0,
-                    parse_dates=True,
-                ).reset_index()[
-                    ["date", "ticker", f"cp_rl_{extra}", f"cp_score_{extra}"]
-                ]
-                extra_data["date"] = pd.to_datetime(extra_data["date"])
+    if not os.path.exists(FEATURES_WRDS_FILE_PATH):
+        os.mkdir(FEATURES_WRDS_FILE_PATH)
 
-                features_w_cpd = pd.merge(
-                    features_w_cpd.set_index(["date", "ticker"]),
-                    extra_data.set_index(["date", "ticker"]),
-                    left_index=True,
-                    right_index=True,
-                ).reset_index()
-                features_w_cpd.index = features_w_cpd["date"]
-                features_w_cpd.index.name = "Date"
-        else:
-            features_w_cpd.index.name = "Date"
-        features_w_cpd.to_csv(output_file_path)
-    else:
-        features.to_csv(output_file_path)
+    features.to_csv(os.path.join(FEATURES_WRDS_FILE_PATH, output_name + ".csv"))
 
 
 if __name__ == "__main__":
-
     def get_args():
         """Returns settings from command line."""
-
         parser = argparse.ArgumentParser(description="Run changepoint detection module")
         # parser.add_argument(
         #     "cpd_module_folder",
@@ -92,39 +72,54 @@ if __name__ == "__main__":
         parser.add_argument(
             "lookback_window_length",
             metavar="l",
-            type=int,
+            type=int or list,
             nargs="?",
-            default=None,
-            # choices=[],
-            help="Input folder for CPD outputs.",
-        )
-        # parser.add_argument(
-        #     "output_file_path",
-        #     metavar="f",
-        #     type=str,
-        #     nargs="?",
-        #     default=FEATURES_QUANDL_FILE_PATH_DEFAULT,
-        #     # choices=[],
-        #     help="Output file location for csv.",
-        # )
-        parser.add_argument(
-            "extra_lbw",
-            metavar="-e",
-            type=int,
-            nargs="*",
             default=[],
             # choices=[],
-            help="Fill missing prices.",
+            help="Lookback window(s)",
+        )
+        parser.add_argument(
+            "output_name",
+            metavar="o",
+            type=str,
+            nargs="?",
+            default="features",
+            # choices=[],
+            help="Output file name for csv.",
+        )
+        parser.add_argument(
+            "id_type",
+            metavar="i",
+            type=str,
+            nargs="?",
+            default="gvkey",
+            # choices=[],
+            help="Ticker identifier type",
+        )
+        parser.add_argument(
+            "onedrive",
+            metavar="-e",
+            type=bool,
+            nargs="*",
+            default=False,
+            # choices=[],
+            help="Whether data directory is in OneDrive",
         )
 
         args = parser.parse_known_args()[0]
+        ticker_dir = ONEDRIVE_CPD_WRDS_OUTPUT_FOLDER if args.onedrive else CPD_WRDS_OUTPUT_FOLDER
+
+        lbw = args.lookback_window_length
+        first_lbw = lbw if isinstance(lbw, int) else lbw[0]
+        tickers = [x[:-4] for x in ticker_dir(first_lbw)]
 
         return (
-            QUANDL_TICKERS,
-            CPD_QUANDL_OUTPUT_FOLDER(args.lookback_window_length),
-            args.lookback_window_length,
-            FEATURES_QUANDL_FILE_PATH(args.lookback_window_length),
-            args.extra_lbw,
+            tickers,
+            lbw,
+            args.output_name,
+            args.id_type,
+            args.onedrive
         )
+
 
     main(*get_args())
